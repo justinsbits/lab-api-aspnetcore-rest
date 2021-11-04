@@ -1,6 +1,6 @@
 namespace CommanderREST.Dtos
 {
-    public class CommandReadDto
+    public class CommandReadDto : IReadDto
     {
         public int Id {get; set;}
         

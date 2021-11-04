@@ -1,6 +1,6 @@
 using AutoMapper;
 using CommanderREST.Dtos;
-using CommanderDA.Entities;
+using CommanderData.Entities;
 
 namespace CommanderREST.Profiles
 {

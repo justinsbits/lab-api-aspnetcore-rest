@@ -8,8 +8,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 
-using CommanderDA;
+using CommanderData;
 using CommanderREST.Data;
+using CommanderREST.Middleware;
+using CommanderData.Repositories;
+using CommanderData.Entities;
+using Middleware;
 
 namespace CommanderREST
 {
@@ -26,7 +30,11 @@ namespace CommanderREST
         public void ConfigureServices(IServiceCollection services)
         {
             string sqlConStr = Configuration.GetConnectionString("CommandConStr");
-            services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(sqlConStr));
+            services.AddDbContext<AppDbContext>(opt => opt
+                .UseSqlServer(sqlConStr)
+                .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, Microsoft.Extensions.Logging.LogLevel.Information)
+                .EnableSensitiveDataLogging() // !!! not in a prod env
+            );
 
            
             services.AddControllers().AddNewtonsoftJson(s => {
@@ -43,23 +51,26 @@ namespace CommanderREST
             // AddSingleton - same for every request
             // AddScoped - same within a request, but different across client requests
             // AddTransient - always different
-            services.AddScoped<ICommandRepo, CommandRepo>();
-            services.AddScoped<IToolRepo, ToolRepo>();
+            services.AddScoped<IRepository<Command>, GenericEFRepository<Command>>();
+            services.AddScoped<IRepository<Tool>, GenericEFRepository<Tool>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<CustomExceptionHandlingMiddleware>();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CommanderREST v1"));
             }
-
+            app.UseCustomRequestLogging();
+            
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthentication(); !!!
+            //app.UseAuthorization(); !!!
 
             app.UseEndpoints(endpoints =>
             {

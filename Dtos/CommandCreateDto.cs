@@ -10,5 +10,8 @@ namespace CommanderREST.Dtos
         
         [Required]
         public string CommandLine {get; set;}
+
+        [Required]
+        public int ToolId { get; set; }
     }
 }
