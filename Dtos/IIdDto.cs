@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommanderREST.Dtos
 {
-    public interface IReadDto
+    public interface IIdDto
     {
         int Id { get; set; }
     }

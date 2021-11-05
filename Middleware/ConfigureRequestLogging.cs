@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Serilog;
 using Serilog.Events;
 
-namespace Middleware
+namespace CommanderREST.Middleware
 {
     // Erik Dahl / docker-dot-net-core-apps-developing
     public static class ConfigureRequestLogging

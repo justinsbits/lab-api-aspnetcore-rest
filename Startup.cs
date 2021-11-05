@@ -9,11 +9,10 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 
 using CommanderData;
-using CommanderREST.Data;
 using CommanderREST.Middleware;
 using CommanderData.Repositories;
 using CommanderData.Entities;
-using Middleware;
+
 
 namespace CommanderREST
 {
@@ -61,7 +60,7 @@ namespace CommanderREST
             app.UseMiddleware<CustomExceptionHandlingMiddleware>();
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage(); - using CustomExceptionHandlingMiddleware above
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CommanderREST v1"));
             }

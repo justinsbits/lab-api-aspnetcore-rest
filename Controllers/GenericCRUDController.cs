@@ -6,14 +6,16 @@ using AutoMapper;
 using CommanderREST.Dtos;
 using CommanderData.Repositories;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace CommanderREST.Controllers
 {
     [ApiController]
     public class GenericCRUDController<TEntity, TCreateDto, TUpdateDto, TReadDto> : ControllerBase
         where TCreateDto : class
-        where TUpdateDto : class
-        where TReadDto : class, IReadDto
+        where TUpdateDto : class, IIdDto
+        where TReadDto : class, IIdDto
     {
         private readonly ILogger<GenericCRUDController<TEntity, TCreateDto, TUpdateDto, TReadDto>> _logger;
         private readonly IRepository<TEntity> _repository;
@@ -28,7 +30,9 @@ namespace CommanderREST.Controllers
 
         //GET api/tools
         [HttpGet]
-        public ActionResult<IEnumerable<TReadDto>> GetAll()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<TReadDto>>> GetAll()
         {
             _logger.LogInformation("Starting controller action GetAll");
             var entities = _repository.GetAll();
@@ -38,7 +42,10 @@ namespace CommanderREST.Controllers
 
         //GET api/tools/{id}
         [HttpGet("{id}")]
-        public ActionResult<TReadDto> Get(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<TReadDto>> Get(int id)
         {
             var entity = _repository.GetById(id);
             if (entity == null)
@@ -50,11 +57,14 @@ namespace CommanderREST.Controllers
 
         //POST api/tools/
         [HttpPost]
-        public ActionResult<TReadDto> Create(TCreateDto createDto)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<TReadDto>> Create(TCreateDto createDto)
         {
             var entity = _mapper.Map<TEntity>(createDto);
             _repository.Add(entity);
-            _repository.SaveChanges();
+            var t = _repository.SaveChangesAsync();
+            await t;
 
             var readDto = _mapper.Map<TReadDto>(entity);
 
@@ -63,8 +73,16 @@ namespace CommanderREST.Controllers
 
         //PUT api/tools/{id}
         [HttpPut("{id}")]
-        public ActionResult Update(int id, TUpdateDto updateDto)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Update(int id, TUpdateDto updateDto)
         {
+            if (id != updateDto.Id)
+            {
+                return BadRequest();
+            }
+
             var entity = _repository.GetById(id);
             if (entity == null)
             {
@@ -73,15 +91,19 @@ namespace CommanderREST.Controllers
             _mapper.Map(updateDto, entity);
 
             _repository.Update(entity);
-
-            _repository.SaveChanges();
+            
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         //PATCH api/tools/{id}
         [HttpPatch("{id}")]
-        public ActionResult PartialUpdate(int id, JsonPatchDocument<TUpdateDto> patchDoc)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> PartialUpdate(int id, JsonPatchDocument<TUpdateDto> patchDoc)
         {
             var entity = _repository.GetById(id);
             if (entity == null)
@@ -100,14 +122,17 @@ namespace CommanderREST.Controllers
 
             _repository.Update(entity);
 
-            _repository.SaveChanges();
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         //DELETE api/tools/{id}
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Delete(int id)
         {
             var entity = _repository.GetById(id);
             if (entity == null)
@@ -115,7 +140,7 @@ namespace CommanderREST.Controllers
                 return NotFound();
             }
             _repository.Remove(entity);
-            _repository.SaveChanges();
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }

@@ -33,7 +33,7 @@ namespace CommanderREST.Middleware
  
         private Task HandleGlobalExceptionAsync(HttpContext context, Exception exception)
         {
-            if (exception is ApplicationException)
+            if (exception is ApplicationException) // !!! not yet using
             {
                 _logger.LogWarning("A validation error occurred. {message}", exception.Message);
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -47,8 +47,7 @@ namespace CommanderREST.Middleware
                 return context.Response.WriteAsJsonAsync(new
                 {
                     ErrorId = errorId,
-                    Message = "Something bad happened in our API. " +
-                              "Contact our support team with the ErrorId if the issue persists."
+                    Message = "Something bad happened in our API. Contact our support team with the ErrorId if the issue persists."
                 });
             }
         }

@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace CommanderREST.Dtos
 {
-    public class CommandReadDto : IReadDto
+    public class CommandReadDto : IIdDto
     {
-        public int Id {get; set;}
-        
+        [Required]
+        public int Id { get; set; }
+
         public string HowTo {get; set;}
 
         public string CommandLine {get; set;}

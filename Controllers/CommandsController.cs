@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 
 using CommanderData.Entities;
-using CommanderREST.Data;
 using CommanderREST.Dtos;
 using Microsoft.Extensions.Logging;
 using CommanderData.Repositories;
