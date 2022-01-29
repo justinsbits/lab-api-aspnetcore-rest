@@ -1,2 +1,2 @@
 # lab-api-aspnetcore-rest
-Playground for playing with ASP.NET Core APIs
+Sandbox for playing with ASP.NET Core REST API
