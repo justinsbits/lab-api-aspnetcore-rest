@@ -1,2 +1,2 @@
 # lab-api-aspnetcore-rest
-Sandbox for playing with ASP.NET Core REST API
+Pesonal sandbox for playing with ASP.NET Core REST API - e.g. building examples based on input from Pluralsight, Udemy, etc
